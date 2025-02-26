@@ -79,26 +79,28 @@ class WhatsAppBot {
         switch (osType) {
             case "darwin":
                 const pathMacOs = "/usr/local/bin/ffmpeg";
+                this.pathffmpeg = pathMacOs;
 
-                if (fs.existsSync(pathMacOs)) {
-                    console.log("A pasta existe!");
-                    this.pathffmpeg = pathMacOs;
-                } else {
-                    // console.log("brew install webp && brew install ffmpeg");
-                }
+                // if (fs.existsSync(pathMacOs)) {
+                //     console.log("A pasta existe!");
+                //     this.pathffmpeg = pathMacOs;
+                // } else {
+                //     // console.log("brew install webp && brew install ffmpeg");
+                // }
                 break;
             case "win32":
                 console.log("Você está no Windows");
                 break;
             case "linux":
                 const pathLinux = "/usr/bin/ffmpeg";
+                this.pathffmpeg = pathLinux;
 
-                if (fs.existsSync(pathLinux)) {
-                    console.log("A pasta existe!");
-                    this.pathffmpeg = pathLinux;
-                } else {
-                    // console.log("sudo apt install ffmpeg libwebp-dev");
-                }
+                // if (fs.existsSync(pathLinux)) {
+                //     console.log("A pasta existe!");
+                //     this.pathffmpeg = pathLinux;
+                // } else {
+                //     // console.log("sudo apt install ffmpeg libwebp-dev");
+                // }
                 break;
             default:
                 console.log("Sistema operacional desconhecido");
