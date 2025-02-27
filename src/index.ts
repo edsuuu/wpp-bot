@@ -1,7 +1,9 @@
 import { Client, LocalAuth, Message, MessageMedia } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
-import fs from "fs";
+import axios from "axios";
+import dotnev from "dotenv";
 
+dotnev.config();
 class WhatsAppBot {
     private pathffmpeg: string;
     private client: Client;
@@ -36,9 +38,38 @@ class WhatsAppBot {
 
     private messagesReceived(): void {
         this.client.on("message_create", async (message: Message) => {
-            if (message.body.toLowerCase() === "figurinha") {
+            if (
+                message.body === "!comandos" ||
+                message.body === "!help" ||
+                message.body === "!ajuda"
+            ) {
+                message.reply(
+                    `🌟 *Comandos do BOT* 🌟\n\n` +
+                        `📌 *Criar Figurinha*\n` +
+                        `Envie uma imagem ou vídeo com a legenda:\n` +
+                        `👉 *!figurinha* (gera uma figurinha automática)\n` +
+                        `👉 *!figurinha NomeDaFigurinha* (personaliza o nome da figurinha)\n\n` +
+                        `🌡️ *Consultar Temperatura*\n` +
+                        `Envie o comando seguido do nome da cidade:\n` +
+                        `🌍 Exemplo: *!tempo São Paulo*\n\n` +
+                        `💰 *Cotação de Moedas*\n` +
+                        `Consulte o valor atual do Dólar e do Bitcoin:\n` +
+                        `💵 Exemplo: *!moeda*\n\n`
+                );
+            }
+
+            if (/^!figurinha(?:\s|$)/.test(message.body)) {
                 try {
-                    await this.generateSticker(message);
+                    const regex = /!figurinha\s*(.*)/;
+
+                    const match = message.body.trim()
+                        ? message.body.match(regex)
+                        : null;
+
+                    const nameSticker =
+                        match && match[1] ? match[1] : "Sticker";
+
+                    await this.generateSticker(message, nameSticker);
                 } catch (error) {
                     console.log(error);
                     message.reply(
@@ -47,13 +78,96 @@ class WhatsAppBot {
                 }
             }
 
+            if (/^!tempo(?:\s|$)/.test(message.body)) {
+                const regex = /!tempo\s*(.*)/;
 
+                const match = message.body.trim()
+                    ? message.body.match(regex)
+                    : null;
+
+                const city = match && match[1] ? match[1] : "itapevi";
+
+                try {
+                    const { data } = await axios.get(
+                        `http://api.weatherapi.com/v1/current.json?key=${
+                            process.env.API_KEY_WEATHER
+                        }&q=${encodeURIComponent(city)}&aqi=no`
+                    );
+
+                    message.reply(
+                        `🌡️ A temperatura em *${data.location.name.replace(
+                            "San Paulo",
+                            "São Paulo"
+                        )}* é de *${data.current.temp_c}°C* 🌡️`
+                    );
+                } catch (error) {
+                    message.reply(
+                        `[SERVER]: ❌ Erro ao Responder temperatura! ${error}`
+                    );
+                }
+            }
+
+            if (message.body === "!moeda") {
+                try {
+                    const { data } = await axios.get(
+                        "https://economia.awesomeapi.com.br/last/USD-BRL,BTC-BRL"
+                    );
+                    const { USDBRL, BTCBRL } = data;
+
+                    const formatDate = (dateString: string) => {
+                        const date = new Date(dateString);
+                        return date.toLocaleString("pt-BR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit",
+                        });
+                    };
+
+                    message.reply(
+                        `💰 *COTAÇÃO ATUAL* 💰\n\n` +
+                            `💵 *Dólar (USD/BRL)*\n` +
+                            `   🔹 *Alta:* R$ ${parseFloat(USDBRL.high).toFixed(
+                                3
+                            )}\n` +
+                            `   🔹 *Baixa:* R$ ${parseFloat(USDBRL.low).toFixed(
+                                3
+                            )}\n` +
+                            `   ⏳ *Última atualização:* ${formatDate(
+                                USDBRL.create_date
+                            )}\n\n` +
+                            `🪙 *Bitcoin (BTC/BRL)*\n` +
+                            `   🔹 *Alta:* R$ ${parseFloat(
+                                BTCBRL.high
+                            ).toLocaleString("pt-BR")}\n` +
+                            `   🔹 *Baixa:* R$ ${parseFloat(
+                                BTCBRL.low
+                            ).toLocaleString("pt-BR")}\n` +
+                            `   ⏳ *Última atualização:* ${formatDate(
+                                BTCBRL.create_date
+                            )}\n\n` +
+                            `🔄 *Valores atualizados em tempo real!*`
+                    );
+                } catch (error) {
+                    console.log(error);
+                    message.reply(
+                        `[SERVER]: ❌ Erro ao Responder Moeda! ${error}`
+                    );
+                }
+            }
         });
     }
 
-    private async generateSticker(message: Message): Promise<void> {
+    private async generateSticker(
+        message: Message,
+        nameSticker: string
+    ): Promise<void> {
         if (message.type === "image" || message.type === "video") {
-            message.reply("[SERVER]: Gerando figurinha...");
+            message.reply(
+                `🛠️ [SERVER]: Criando sua figurinha... ⏳\nAguarde alguns segundos!`
+            );
 
             const data = await message.downloadMedia();
 
@@ -63,12 +177,19 @@ class WhatsAppBot {
                 message.type === "image" ? "image.jpg" : "video.mp4"
             );
 
-            await this.client.sendMessage(message.to, media, {
+            const sender = message.from.startsWith(this.client.info.wid.user)
+                ? message.to
+                : message.from;
+
+            await this.client.sendMessage(sender, media, {
                 sendMediaAsSticker: true,
+                stickerName: nameSticker,
             });
         } else if (message.type === "chat") {
             message.reply(
-                "[SERVER]: Paga gerar uma figurinha envie uma imagem ou video com a legenda: Figurinha"
+                `📌 [SERVER]: Para criar uma figurinha, envie uma *imagem* ou *vídeo* com a legenda:\n\n` +
+                    `👉 *!figurinha* (gera uma figurinha automática)\n` +
+                    `👉 *!figurinha NomeDaFigurinha* (personaliza o nome da figurinha)`
             );
         }
     }
@@ -80,13 +201,6 @@ class WhatsAppBot {
             case "darwin":
                 const pathMacOs = "/usr/local/bin/ffmpeg";
                 this.pathffmpeg = pathMacOs;
-
-                // if (fs.existsSync(pathMacOs)) {
-                //     console.log("A pasta existe!");
-                //     this.pathffmpeg = pathMacOs;
-                // } else {
-                //     // console.log("brew install webp && brew install ffmpeg");
-                // }
                 break;
             case "win32":
                 console.log("Você está no Windows");
@@ -94,16 +208,6 @@ class WhatsAppBot {
             case "linux":
                 const pathLinux = "/usr/bin/ffmpeg";
                 this.pathffmpeg = pathLinux;
-
-                // if (fs.existsSync(pathLinux)) {
-                //     console.log("A pasta existe!");
-                //     this.pathffmpeg = pathLinux;
-                // } else {
-                //     // console.log("sudo apt install ffmpeg libwebp-dev");
-                // }
-                break;
-            default:
-                console.log("Sistema operacional desconhecido");
                 break;
         }
     }
