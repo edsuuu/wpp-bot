@@ -43,6 +43,7 @@ class WhatsAppBot {
                 message.body === "!help" ||
                 message.body === "!ajuda"
             ) {
+                console.log('Commands', new Date())
                 message.reply(
                     `🌟 *Comandos do BOT* 🌟\n\n` +
                         `📌 *Criar Figurinha*\n` +
@@ -58,7 +59,8 @@ class WhatsAppBot {
                 );
             }
 
-            if (/^!figurinha(?:\s|$)/.test(message.body)) {
+            if (/^!figurinha(?:\s|$)/.test(message.body) || /^!sticker(?:\s|$)/.test(message.body)) {
+                console.log('Sticker', new Date())
                 try {
                     const regex = /!figurinha\s*(.*)/;
 
@@ -79,6 +81,8 @@ class WhatsAppBot {
             }
 
             if (/^!tempo(?:\s|$)/.test(message.body)) {
+                console.log('Temperature', new Date())
+
                 const regex = /!tempo\s*(.*)/;
 
                 const match = message.body.trim()
@@ -112,6 +116,7 @@ class WhatsAppBot {
                 message.body === "!dolar" ||
                 message.body === "!bitcoin"
             ) {
+                console.log('Dolar', new Date())
                 try {
                     const { data } = await axios.get(
                         "https://economia.awesomeapi.com.br/last/USD-BRL,BTC-BRL"
