@@ -24,7 +24,7 @@ class WhatsAppBot {
         this.messagesReceived();
     }
 
-    public generateConnection(): void {
+    private generateConnection(): void {
         this.client.on("qr", (qr) => {
             qrcode.generate(qr, { small: true });
         });
@@ -107,7 +107,11 @@ class WhatsAppBot {
                 }
             }
 
-            if (message.body === "!moeda") {
+            if (
+                message.body === "!moeda" ||
+                message.body === "!dolar" ||
+                message.body === "!bitcoin"
+            ) {
                 try {
                     const { data } = await axios.get(
                         "https://economia.awesomeapi.com.br/last/USD-BRL,BTC-BRL"
@@ -203,6 +207,8 @@ class WhatsAppBot {
                 this.pathffmpeg = pathMacOs;
                 break;
             case "win32":
+                const pathWindows = "C:\\ffmpeg\\bin\\ffmpeg.exe";
+                this.pathffmpeg = pathWindows;
                 console.log("Você está no Windows");
                 break;
             case "linux":
