@@ -119,9 +119,9 @@ class WhatsAppBot {
                 console.log('Dolar', new Date())
                 try {
                     const { data } = await axios.get(
-                        "https://economia.awesomeapi.com.br/last/USD-BRL,BTC-BRL"
+                        "https://economia.awesomeapi.com.br/last/USD-BRL,BTC-BRL,EUR-BRL"
                     );
-                    const { USDBRL, BTCBRL } = data;
+                    const { USDBRL, BTCBRL, EURBRL } = data;
 
                     const formatDate = (dateString: string) => {
                         const date = new Date(dateString);
@@ -156,6 +156,16 @@ class WhatsAppBot {
                             ).toLocaleString("pt-BR")}\n` +
                             `   ⏳ *Última atualização:* ${formatDate(
                                 BTCBRL.create_date
+                            )}\n\n` +
+                            `🪙 *Euro (Euro/BRL)*\n` +
+                            `   🔹 *Alta:* R$ ${parseFloat(
+                                EURBRL.high
+                            ).toLocaleString("pt-BR")}\n` +
+                            `   🔹 *Baixa:* R$ ${parseFloat(
+                                EURBRL.low
+                            ).toLocaleString("pt-BR")}\n` +
+                            `   ⏳ *Última atualização:* ${formatDate(
+                                EURBRL.create_date
                             )}\n\n` +
                             `🔄 *Valores atualizados em tempo real!*`
                     );
