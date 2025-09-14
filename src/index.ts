@@ -15,13 +15,20 @@ class WhatsAppBot {
                 args: ["--no-sandbox"],
             },
             ffmpegPath: this.pathffmpeg,
+
+
+            // pairWithPhoneNumber: {
+            //     phoneNumber: '55111231232',
+            //     showNotification: true,
+            //     intervalMs: 180000
+            // }
         });
 
         this.generateConnection();
         this.messagesReceived();
     }
 
-    private generateConnection(): void {
+    private async generateConnection() {
         this.client.on("qr", (qr) => {
             qrcode.generate(qr, { small: true });
         });
@@ -29,6 +36,19 @@ class WhatsAppBot {
         this.client.on("ready", () => {
             console.log("[SERVER]: Bot Online!");
         });
+
+        this.client.on('code', (code) => {
+            console.log('Pairing code:', code);
+        });
+
+        this.client.on('authenticated', () => {
+            console.log('AUTHENTICATED');
+        });
+
+        this.client.on('auth_failure', msg => {
+            console.error('AUTHENTICATION FAILURE', msg);
+        });
+
 
         this.client.initialize();
     }
