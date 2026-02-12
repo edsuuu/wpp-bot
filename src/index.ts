@@ -2,12 +2,14 @@ import { Client, LocalAuth, Message, MessageMedia } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
 import { readdirSync, readFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
+import ffmpegPath from "ffmpeg-static";
+
 class WhatsAppBot {
     private pathffmpeg: string;
     private client: Client;
 
     constructor() {
-        this.pathffmpeg = "/usr/bin/ffmpeg";
+        this.pathffmpeg = ffmpegPath as string;
 
         this.client = new Client({
             authStrategy: new LocalAuth(),
