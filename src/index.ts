@@ -102,7 +102,7 @@ class WhatsAppBot {
                 });
             } catch (err) {
                 console.error(`Erro ao converter ${arq}:`, err);
-                return message.reply(`LINHA 85 Erro ao converter ${arq}:`);
+                return message.reply(`Erro ao converter ${arq}:`);
             }
         }
     }
