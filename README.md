@@ -1,64 +1,66 @@
 # 🤖 WhatsApp Bot Sticker Maker
 
-Um bot simples e eficiente para WhatsApp focado na criação de figurinhas (stickers), desenvolvido com [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js).
+Um bot robusto e organizado para WhatsApp focado na criação de figurinhas (stickers), desenvolvido com [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js).
 
 ## 🚀 Funcionalidades
 
-### 1. Criar Figurinha Individual
-
+### 1. Criar Figurinha (Sticker)
 Transforme imagens e vídeos em figurinhas instantaneamente.
-
 - **Como usar:**
-    - Envie uma imagem ou vídeo com a legenda `!figurinha` ou `!sticker`.
-    - Ou responda a uma imagem/vídeo já enviado com o comando.
+    - Envie uma imagem ou vídeo com a legenda `!figurinha`.
+    - Ou responda (Reply) a uma imagem/vídeo já enviado com o comando `!figurinha`.
 - **Personalização:**
-    - Você pode dar nome à figurinha adicionando texto após o comando.
-    - Exemplo: `!figurinha MeuPack` (A figurinha terá o nome de pacote "MeuPack").
+    - Adicione texto após o comando para dar nome à figurinha. Ex: `!figurinha MeuPack`.
 
-### 2. Gerar Figurinhas em Massa (Por Pasta)
+### 2. Comandos Utilitários
+- `!ping`: Verifica se o bot está online.
+- `!gerar`: (Opcional) Processa arquivos locais na pasta `stickers`.
 
-Esta é uma funcionalidade poderosa para criar múltiplos stickers de uma vez a partir de arquivos locais.
+---
 
-- **Como usar:**
-    1. Envie o comando `!gerar`.
-    2. Se a pasta `stickers` não existir na raiz do projeto, o bot irá criá-la automaticamente e avisar você.
-    3. Coloque seus arquivos de imagem ou vídeo (`.jpg`, `.jpeg`, `.png`, `.mp4`) dentro desta pasta `stickers`.
-    4. Envie o comando `!gerar` novamente.
-    5. O bot irá processar todos os arquivos da pasta e enviá-los como figurinhas para você.
+## 🛠️ Instalação e Execução (Recomendado: Docker)
 
-### 3. Ping
+A maneira mais estável de rodar o bot é via Docker, pois ele já configura o ambiente com Chromium e FFmpeg.
 
-Verifique se o bot está online e respondendo.
-
-- **Comando:** `!ping`
-- **Resposta:** `pong`
-
-## 🛠️ Instalação e Execução
-
-1.  **Instale as dependências:**
-
+1.  **Inicie o Bot:**
     ```bash
-    pnpm install
+    npm run docker:up
+    ```
+2.  **Escaneie o QR Code:**
+    O código aparecerá diretamente no seu terminal.
+3.  **Parar o Bot:**
+    ```bash
+    npm run docker:down
     ```
 
-2.  **Inicie o bot:**
+### Execução Local (Alternativa)
+Se preferir rodar sem Docker, instale o FFmpeg no seu sistema e execute:
+```bash
+pnpm install
+pnpm run dev
+```
 
-    ```bash
-    pnpm run dev
-    ```
+---
 
-3.  **Autenticação:**
-    - Um QR Code será exibido no terminal.
-    - Abra o WhatsApp no seu celular, vá em "Aparelhos Conectados" > "Conectar um aparelho" e escaneie o código.
+## 🏗️ Arquitetura do Projeto
 
-## 📁 Estrutura de Pastas
+O projeto utiliza uma arquitetura organizada por responsabilidades:
 
-- `src/`: Código fonte do bot.
-- `stickers/`: Pasta local onde o bot busca arquivos para o comando `!gerar`. (Criada automaticamente)
-- `.wwebjs_auth/`: Armazena a sessão do WhatsApp para não precisar escanear o QR Code toda vez.
+- **`src/index.ts`**: Ponto de entrada da aplicação.
+- **`src/bot.ts`**: Configuração do cliente WhatsApp e eventos globais.
+- **`src/handlers/message.handler.ts`**: Gerenciamento de comandos e mensagens.
+- **`src/services/sticker.service.ts`**: Lógica de download e conversão de mídias.
+- **`src/config/bot.config.ts`**: Centralização de caminhos (FFmpeg/Chrome) e ambiente.
+
+---
 
 ## ⚠️ Requisitos
+- **Docker** e **Docker Compose** (recomendado).
+- **Node.js** (se rodar localmente).
+- **FFmpeg** (se rodar localmente).
 
-- **Node.js** (versão LTS recomendada)
-- **FFmpeg** instalado no sistema (necessário para conversão de vídeos/GIFs em figurinhas animadas).
-    - O bot espera encontrar o FFmpeg em `/usr/bin/ffmpeg`. Se estiver em outro local, ajuste a variável `pathffmpeg` no arquivo `src/index.ts`.
+---
+
+## 📁 Persistência
+- `.wwebjs_auth/`: Armazena sua sessão para evitar novos escaneamentos de QR Code.
+- `.wwebjs_cache/`: Cache de versões do WhatsApp Web para maior estabilidade.

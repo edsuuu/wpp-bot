@@ -5,3 +5,4 @@ node_modules
 msg.json
 text.txt
 .env
+.idea

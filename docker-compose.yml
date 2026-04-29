@@ -1,0 +1,11 @@
+services:
+  wpp-bot:
+    build: .
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+      - ./.wwebjs_auth:/usr/src/app/.wwebjs_auth
+      - ./.wwebjs_cache:/usr/src/app/.wwebjs_cache
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
